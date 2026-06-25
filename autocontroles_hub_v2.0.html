@@ -1577,6 +1577,18 @@ let cqAi=0, cqCentro='', cualAi=0, cualCentro=null, vsCentro=null, vaActive=null
 // Funciona tanto en local (localhost:3001) como en el server PRO (vía VPN/IP corporativa).
 const API_URL = '';
 
+// Recoger token del portal desde la URL y guardarlo en sessionStorage
+(function () {
+  const params = new URLSearchParams(window.location.search);
+  const urlToken = params.get('appToken') || params.get('token');
+  if (urlToken) {
+    sessionStorage.setItem('appToken', urlToken);
+    // Limpiar el token de la URL sin recargar
+    const clean = window.location.pathname + (window.location.hash || '');
+    history.replaceState(null, '', clean);
+  }
+})();
+
 // Inyectar token del portal en todas las llamadas a /api/
 (function () {
   const _fetch = window.fetch;
@@ -1586,8 +1598,27 @@ const API_URL = '';
       opts = Object.assign({}, opts);
       opts.headers = Object.assign({ Authorization: 'Bearer ' + token }, opts.headers || {});
     }
-    return _fetch.call(this, url, opts);
+    return _fetch.call(this, url, opts).then(function (resp) {
+      if (resp.status === 401) {
+        showAuthError();
+      }
+      return resp;
+    });
   };
+
+  function showAuthError() {
+    if (document.getElementById('_auth-error')) return;
+    const d = document.createElement('div');
+    d.id = '_auth-error';
+    d.style.cssText = 'position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.55);z-index:99999';
+    d.innerHTML = '<div style="background:#1e1e2e;color:#f8f8f2;border:1px solid #e74c3c;border-radius:12px;padding:32px 40px;max-width:420px;text-align:center;box-shadow:0 8px 32px rgba(0,0,0,.5)">' +
+      '<div style="font-size:2rem;margin-bottom:12px">🔒</div>' +
+      '<h2 style="margin:0 0 10px;font-size:1.2rem;color:#e74c3c">Sesión no válida</h2>' +
+      '<p style="margin:0 0 20px;font-size:.9rem;color:#aaa;line-height:1.5">El token de acceso ha expirado o no es válido.<br>Accede al reporte desde el portal.</p>' +
+      '<button onclick="history.back()" style="background:#e74c3c;color:#fff;border:none;padding:10px 24px;border-radius:6px;cursor:pointer;font-size:.95rem">← Volver al portal</button>' +
+      '</div>';
+    document.body.appendChild(d);
+  }
 })();
 
 const API_COLS = ['CENTRO','FECHA','HORA','ORDEN','OPERACION','PUESTO_TRABAJO','OPERARIO','MATERIAL','DESCRIP','CARACTERISTICA_T','METODO_TEXT','CUANTITATIVA','CUALITATIVA','limte inf','limte sup','valor_cuant2','VALOR_CUAL','MUESTRA_UOM','MOLDE','NUM_MUESTRA','FUERA_RANGO','VALIDADO','USU_VALIDADOR','FECHA_VALIDACION','NOTAS_VALIDACION','PLAN_ACCION','ACCIONES_MAQUINA','ACCIONES_PIEZA','OBS_OPERARIO','MOTIVO'];
