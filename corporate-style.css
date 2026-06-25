@@ -1,0 +1,284 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   CORPORATE STYLE — Sistema visual unificado para Reports
+   Reutilizar en todos los HTMLs de reporting (autocontroles, preparaciones,
+   notificaciones, ofs, ...). Paleta y patrones extraídos de muros-calidad.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+:root {
+  /* ── Paleta corporativa ── */
+  --primary:    #0d3b66;     /* Azul corporativo (logo) */
+  --primary-2:  #1e5a8e;     /* Azul medio */
+  --primary-3:  #2a6fad;     /* Azul claro / hover */
+  --accent:     #f4a261;     /* Naranja acento */
+  --ok:         #2a9d8f;     /* Verde OK / cumplimiento */
+  --warn:       #e9c46a;     /* Amarillo aviso */
+  --nok:        #e63946;     /* Rojo NOK / fallo */
+
+  /* ── Fondos / superficies ── */
+  --bg:         #d9e1ec;     /* Fondo página — gris azulado un punto más oscuro */
+  --bg-2:       #ccd5e2;     /* Fondo zonas auxiliares (más oscuro que --bg) */
+  --card:       #f5f7fa;     /* Tarjetas — antes era el fondo de página */
+  --card-2:     #eef2f7;     /* Tarjeta secundaria / hover row */
+
+  /* ── Texto ── */
+  --text:       #1a1a1a;
+  --text-2:     #374151;
+  --muted:      #6b7280;
+  --muted-2:    #9ca3af;
+
+  /* ── Bordes ── */
+  --border:     #e1e5eb;
+  --border-2:   #cbd5e1;
+
+  /* ── Sombras ── */
+  --shadow-sm:  0 1px 3px rgba(0,0,0,0.06);
+  --shadow:     0 4px 12px rgba(0,0,0,0.08);
+  --shadow-lg:  0 8px 24px rgba(0,0,0,0.12);
+
+  /* ── Geometría ── */
+  --radius-sm:  6px;
+  --radius:     10px;
+  --radius-lg:  14px;
+
+  /* ── Tipografía ── */
+  --font:       -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+  --font-mono:  ui-monospace, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  font-family: var(--font);
+  background: var(--bg);
+  color: var(--text);
+  font-size: 13px;
+  -webkit-font-smoothing: antialiased;
+}
+
+button { font-family: inherit; cursor: pointer; }
+
+/* ─────────────────────────────────────────────────────────────────────────
+   TOPBAR — cabecera corporativa con logo
+   Uso: <header class="topbar">
+          <div class="brand">
+            <img class="brand-logo" src="img/logo.png" alt="Logo">
+            <div class="brand-text-stack">
+              <div class="brand-text-main">REPORTING</div>
+              <div class="brand-text-app">Nombre del informe</div>
+            </div>
+          </div>
+          <div class="topbar-right">...</div>
+        </header>
+   ───────────────────────────────────────────────────────────────────────── */
+.topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 24px;
+  background: var(--primary);
+  color: #fff;
+  box-shadow: var(--shadow);
+}
+.brand { display: flex; align-items: center; gap: 14px; }
+.brand-logo {
+  height: 36px; width: auto; display: block;
+  background: #fff; padding: 3px 6px; border-radius: var(--radius-sm);
+}
+.brand-text-stack { display: flex; flex-direction: column; line-height: 1.15; }
+.brand-text-main {
+  font-size: 11px; font-weight: 500; opacity: .8;
+  letter-spacing: 1.5px; text-transform: uppercase;
+}
+.brand-text-app { font-size: 17px; font-weight: 600; }
+.topbar-right { display: flex; align-items: center; gap: 12px; font-size: 12px; }
+.topbar-right .status { display: flex; align-items: center; gap: 6px; opacity: .9; }
+.topbar-right .status .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--ok); }
+.topbar-right .status.err .dot { background: var(--nok); }
+
+/* ─────────────────────────────────────────────────────────────────────────
+   LAYOUT base
+   ───────────────────────────────────────────────────────────────────────── */
+.section { padding: 16px 24px; }
+.section-tight { padding: 10px 24px; }
+
+/* ─────────────────────────────────────────────────────────────────────────
+   FILTROS
+   ───────────────────────────────────────────────────────────────────────── */
+.filters {
+  background: var(--card);
+  border-bottom: 1px solid var(--border);
+  padding: 14px 24px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 10px;
+  box-shadow: var(--shadow-sm);
+}
+.filters .f { display: flex; flex-direction: column; gap: 4px; }
+.filters label {
+  font-size: 10px; color: var(--muted);
+  text-transform: uppercase; letter-spacing: .5px; font-weight: 600;
+}
+.filters input,
+.filters select {
+  background: #fff;
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 7px 9px;
+  border-radius: var(--radius-sm);
+  font-size: 12px;
+  font-family: inherit;
+}
+.filters input:focus,
+.filters select:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(13, 59, 102, 0.12);
+}
+.filters .btn-row {
+  grid-column: 1 / -1;
+  display: flex; gap: 8px; justify-content: flex-end; align-items: flex-end;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────
+   BOTONES
+   ───────────────────────────────────────────────────────────────────────── */
+.btn {
+  background: var(--primary); color: #fff; border: none;
+  padding: 8px 16px; border-radius: var(--radius-sm);
+  font-size: 12px; font-weight: 600; cursor: pointer;
+  transition: background .15s;
+}
+.btn:hover { background: var(--primary-2); }
+.btn-secondary { background: #fff; color: var(--text-2); border: 1px solid var(--border-2); }
+.btn-secondary:hover { background: var(--bg-2); }
+.btn-danger { background: var(--nok); }
+.btn-success { background: var(--ok); }
+
+/* ─────────────────────────────────────────────────────────────────────────
+   KPIs (tarjetas resumen)
+   ───────────────────────────────────────────────────────────────────────── */
+.kpis {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  gap: 12px;
+  padding: 16px 24px;
+}
+.kpi {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-left: 4px solid var(--primary);
+  padding: 12px 14px;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-sm);
+}
+.kpi .label {
+  font-size: 10px; color: var(--muted);
+  text-transform: uppercase; letter-spacing: .5px; font-weight: 600;
+  margin-bottom: 4px;
+}
+.kpi .value { font-size: 22px; font-weight: 700; color: var(--text); }
+.kpi .sub   { font-size: 11px; color: var(--muted); margin-top: 2px; }
+.kpi.good { border-left-color: var(--ok); }
+.kpi.good  .value { color: var(--ok); }
+.kpi.warn { border-left-color: var(--accent); }
+.kpi.warn  .value { color: var(--accent); }
+.kpi.bad  { border-left-color: var(--nok); }
+.kpi.bad   .value { color: var(--nok); }
+
+/* ─────────────────────────────────────────────────────────────────────────
+   TABS
+   ───────────────────────────────────────────────────────────────────────── */
+.tabs {
+  display: flex; padding: 0 24px; gap: 2px;
+  border-bottom: 1px solid var(--border); background: var(--bg);
+}
+.tabs .tab {
+  padding: 10px 18px;
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+  border: none;
+  border-bottom: 2px solid transparent;
+  font-size: 12px; font-weight: 600;
+  transition: color .15s, border-color .15s;
+}
+.tabs .tab:hover { color: var(--text-2); }
+.tabs .tab.active {
+  color: var(--primary);
+  border-bottom-color: var(--primary);
+}
+
+/* ─────────────────────────────────────────────────────────────────────────
+   CHIPS (group-by, etiquetas filtro)
+   ───────────────────────────────────────────────────────────────────────── */
+.chips { display: flex; gap: 6px; padding: 8px 0; flex-wrap: wrap; }
+.chip {
+  background: var(--card);
+  border: 1px solid var(--border-2);
+  color: var(--text-2);
+  padding: 4px 12px;
+  border-radius: 14px;
+  cursor: pointer;
+  font-size: 11px; font-weight: 500;
+  transition: all .15s;
+}
+.chip:hover { border-color: var(--primary); color: var(--primary); }
+.chip.active {
+  background: var(--primary); color: #fff; border-color: var(--primary);
+}
+
+/* ─────────────────────────────────────────────────────────────────────────
+   TABLAS
+   ───────────────────────────────────────────────────────────────────────── */
+.table-wrap {
+  max-height: calc(100vh - 380px);
+  overflow: auto;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-sm);
+}
+table.data {
+  width: 100%; border-collapse: collapse; font-size: 12px;
+}
+table.data thead th {
+  background: var(--bg-2);
+  color: var(--text-2);
+  text-align: left;
+  padding: 9px 10px;
+  font-weight: 600;
+  font-size: 10.5px;
+  text-transform: uppercase;
+  letter-spacing: .3px;
+  border-bottom: 2px solid var(--border-2);
+  position: sticky; top: 0; z-index: 1;
+  cursor: pointer; user-select: none;
+  white-space: nowrap;
+}
+table.data thead th:hover { color: var(--primary); }
+table.data thead th .arrow { font-size: 9px; margin-left: 4px; opacity: .6; }
+table.data tbody td {
+  padding: 7px 10px;
+  border-bottom: 1px solid var(--border);
+  vertical-align: middle;
+}
+table.data tbody tr:hover { background: var(--card-2); }
+td.num { text-align: right; font-variant-numeric: tabular-nums; }
+
+.pct-good { color: var(--ok); font-weight: 600; }
+.pct-warn { color: var(--accent); font-weight: 600; }
+.pct-bad  { color: var(--nok); font-weight: 600; }
+
+.info { color: var(--muted); font-size: 11px; padding: 6px 2px; }
+.empty { text-align: center; padding: 40px; color: var(--muted); }
+
+/* ─────────────────────────────────────────────────────────────────────────
+   FOOTER (opcional)
+   ───────────────────────────────────────────────────────────────────────── */
+.footer {
+  text-align: center; padding: 12px;
+  font-size: 10.5px; color: var(--muted-2);
+  border-top: 1px solid var(--border);
+  margin-top: 16px;
+}
