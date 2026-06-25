@@ -1576,6 +1576,20 @@ let cqAi=0, cqCentro='', cualAi=0, cualCentro=null, vsCentro=null, vaActive=null
 // URL relativa: las llamadas usan el mismo host:puerto desde el que se sirve el HTML.
 // Funciona tanto en local (localhost:3001) como en el server PRO (vía VPN/IP corporativa).
 const API_URL = '';
+
+// Inyectar token del portal en todas las llamadas a /api/
+(function () {
+  const _fetch = window.fetch;
+  window.fetch = function (url, opts) {
+    const token = sessionStorage.getItem('appToken');
+    if (token && typeof url === 'string' && url.includes('/api/')) {
+      opts = Object.assign({}, opts);
+      opts.headers = Object.assign({ Authorization: 'Bearer ' + token }, opts.headers || {});
+    }
+    return _fetch.call(this, url, opts);
+  };
+})();
+
 const API_COLS = ['CENTRO','FECHA','HORA','ORDEN','OPERACION','PUESTO_TRABAJO','OPERARIO','MATERIAL','DESCRIP','CARACTERISTICA_T','METODO_TEXT','CUANTITATIVA','CUALITATIVA','limte inf','limte sup','valor_cuant2','VALOR_CUAL','MUESTRA_UOM','MOLDE','NUM_MUESTRA','FUERA_RANGO','VALIDADO','USU_VALIDADOR','FECHA_VALIDACION','NOTAS_VALIDACION','PLAN_ACCION','ACCIONES_MAQUINA','ACCIONES_PIEZA','OBS_OPERARIO','MOTIVO'];
 
 // Carga los valores disponibles para los selects de Año y Centro
