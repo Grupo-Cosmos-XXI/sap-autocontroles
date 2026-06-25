@@ -11,7 +11,7 @@ const jwt = require('jsonwebtoken');
 const config = require('./config');
 
 const JWT_SECRET = process.env.JWT_SECRET || 'change-in-production';
-const PORT = process.env.PORT || 3001;
+const PORT = process.env.PORT || 3101;
 const REPORT_SLUG = 'autocontroles';
 const REPORT_HTML = 'autocontroles_hub_v2.0.html';
 const REPORT_NAME = 'Autocontroles — Hub de análisis';
@@ -21,7 +21,7 @@ app.use(cors());
 app.use(express.json());
 app.use(cookieParser());
 
-// ── Middleware: extraer token y validar ──────────────────────────
+// ── Middleware: extraer y validar token del portal ───────────────
 const extractToken = (req, res, next) => {
   const token = req.headers.authorization?.replace('Bearer ', '') ||
                 req.query.token ||
@@ -29,19 +29,26 @@ const extractToken = (req, res, next) => {
                 req.body?.token ||
                 req.cookies?.reportToken;
 
-  if (!token) {
-    req.user = { reports: [REPORT_SLUG] };
-    return next();
-  }
+  req.user = null;
+
+  if (!token) return next();
 
   try {
-    req.user = jwt.verify(token, JWT_SECRET);
-    if (!Array.isArray(req.user.reports)) req.user.reports = [REPORT_SLUG];
-    console.log('[JWT Valid] user:', req.user.email);
+    const decoded = jwt.verify(token, JWT_SECRET);
+    if (decoded.app && decoded.app !== REPORT_SLUG) {
+      console.warn(`[Auth] Token for app '${decoded.app}' rejected`);
+    } else {
+      req.user = decoded;
+      console.log('[JWT Valid] user:', decoded.email);
+    }
   } catch (err) {
-    console.warn('[Token validation failed]', err.message);
-    req.user = { reports: [REPORT_SLUG] };
+    console.warn('[Token invalid]', err.message);
   }
+  next();
+};
+
+const requireAuth = (req, res, next) => {
+  if (!req.user) return res.status(401).json({ error: 'Autenticación requerida' });
   next();
 };
 
@@ -53,12 +60,7 @@ app.use('/img',    express.static(path.join(ROOT, 'img')));
 app.use('/vendor', express.static(path.join(ROOT, 'vendor')));
 app.get('/corporate-style.css', (req, res) => res.sendFile(path.join(ROOT, '/corporate-style.css')));
 
-// ── Servir HTML del report ───────────────────────────────────────
-app.get(`/${REPORT_HTML}`, (req, res) => {
-  res.sendFile(path.join(ROOT, REPORT_HTML));
-});
-
-// ── Índice de bienvenida ─────────────────────────────────────────
+// ── Servir HTML del report en la raíz ───────────────────────────
 app.get('/', (req, res) => {
   const token = req.headers.authorization?.replace('Bearer ', '') || req.query.token || req.query.appToken;
   if (token) {
@@ -69,22 +71,7 @@ app.get('/', (req, res) => {
       maxAge: 8 * 60 * 60 * 1000
     });
   }
-
-  res.send(`<!doctype html><html><head><meta charset="utf-8">
-<title>${REPORT_NAME}</title>
-<link rel="stylesheet" href="/corporate-style.css">
-<style>
-  body { padding:40px; max-width:600px; margin:auto }
-  h1 { color:var(--primary) }
-  a { display:block; padding:14px 18px; background:var(--card); border:1px solid var(--border);
-      border-left:4px solid var(--primary); border-radius:8px; color:var(--text); text-decoration:none;
-      box-shadow:var(--shadow-sm); font-weight:600; margin-top:20px }
-  a:hover { background:var(--card-2) }
-</style>
-</head><body>
-<h1>📊 ${REPORT_NAME}</h1>
-<a href="/${REPORT_HTML}">Ir al reporte →</a>
-</body></html>`);
+  res.sendFile(path.join(ROOT, REPORT_HTML));
 });
 
 // ── Pool de conexión global ──────────────────────────────────────
@@ -120,7 +107,7 @@ function parseDecimal(v) {
 }
 
 // ── ENDPOINT: Valores distintos para filtros previos ──────────────
-app.get('/api/autocontroles/filtros-load', async (req, res) => {
+app.get('/api/autocontroles/filtros-load', requireAuth, async (req, res) => {
   try {
     const p = await getPool();
     const tabla = config.tabla_autocontroles;
@@ -140,7 +127,7 @@ app.get('/api/autocontroles/filtros-load', async (req, res) => {
 
 // ── ENDPOINT: Datos de autocontroles ─────────────────────────────
 // GET /api/autocontroles?centro=1120,2020&desde=20260101&hasta=20260331&limit=50000
-app.get('/api/autocontroles', async (req, res) => {
+app.get('/api/autocontroles', requireAuth, async (req, res) => {
   try {
     const p = await getPool();
     const tabla = config.tabla_autocontroles;
@@ -199,7 +186,7 @@ app.get('/api/autocontroles', async (req, res) => {
 });
 
 // ── ENDPOINT: Resumen rápido (KPIs) ──────────────────────────────
-app.get('/api/autocontroles/resumen', async (req, res) => {
+app.get('/api/autocontroles/resumen', requireAuth, async (req, res) => {
   try {
     const p = await getPool();
     const tabla = config.tabla_autocontroles;
@@ -230,7 +217,7 @@ app.get('/api/autocontroles/resumen', async (req, res) => {
 });
 
 // ── ENDPOINT: Datos agrupados por centro y mes ───────────────────
-app.get('/api/autocontroles/por-centro-mes', async (req, res) => {
+app.get('/api/autocontroles/por-centro-mes', requireAuth, async (req, res) => {
   try {
     const p = await getPool();
     const tabla = config.tabla_autocontroles;
@@ -255,7 +242,7 @@ app.get('/api/autocontroles/por-centro-mes', async (req, res) => {
 });
 
 // ── ENDPOINT: Muestra de cuantitativos (diagnóstico) ──────────────
-app.get('/api/autocontroles/sample-cuant', async (req, res) => {
+app.get('/api/autocontroles/sample-cuant', requireAuth, async (req, res) => {
   try {
     const p = await getPool();
     const tabla = config.tabla_autocontroles;
@@ -288,6 +275,5 @@ app.listen(PORT, () => {
   console.log('═══════════════════════════════════════════════');
   console.log(`  ${REPORT_NAME}`);
   console.log(`  Local:   http://localhost:${PORT}`);
-  console.log(`  Reports: http://localhost:${PORT}/${REPORT_HTML}`);
   console.log('═══════════════════════════════════════════════');
 });
