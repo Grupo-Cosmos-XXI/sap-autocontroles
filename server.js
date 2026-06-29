@@ -63,6 +63,7 @@ const ROOT = __dirname;
 app.use('/img',    express.static(path.join(ROOT, 'img')));
 app.use('/vendor', express.static(path.join(ROOT, 'vendor')));
 app.get('/corporate-style.css', (req, res) => res.sendFile(path.join(ROOT, '/corporate-style.css')));
+app.get('/autocontroles.css', (req, res) => res.sendFile(path.join(ROOT, 'autocontroles.css')));
 
 // ── Servir HTML del report en la raíz ───────────────────────────
 app.get('/', (req, res) => {
