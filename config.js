@@ -4,11 +4,11 @@
 
 module.exports = {
   sql: {
-    server:   'SRVBI',        // Host SQL Server
-    database: 'OLAPS_MZ',     // BD por defecto (las consultas usan FQN [BD].[dbo].[TABLA])
-    user:     '<USUARIO_SQL>',// ⚠️ Rellenar
-    password: '<PASSWORD_SQL>',// ⚠️ Rellenar
-    port: 1433,
+    server:   process.env.SQL_SERVER   || 'SRVBI',
+    database: process.env.SQL_DATABASE || 'OLAPS_MZ',
+    user:     process.env.SQL_USER,
+    password: process.env.SQL_PASSWORD,
+    port:     parseInt(process.env.SQL_PORT || '1433'),
     options: {
       encrypt: false,
       trustServerCertificate: true,
