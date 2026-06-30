@@ -353,8 +353,8 @@ select.ctrl-sel { font-weight: 500; }
 ._auth-error-box { background: #1e1e2e; color: #f8f8f2; border: 1px solid #e74c3c; border-radius: 12px; padding: 32px 40px; max-width: 420px; text-align: center; box-shadow: 0 8px 32px rgba(0,0,0,.5); }
 ._auth-error-icon { font-size: 2rem; margin-bottom: 12px; }
 ._auth-error-title { margin: 0 0 10px; font-size: 1.2rem; color: #e74c3c; }
-._auth-error-msg { margin: 0 0 20px; font-size: .9rem; color: #aaa; line-height: 1.5; }
-._auth-error-btn { background: #e74c3c; color: #fff; border: none; padding: 10px 24px; border-radius: 6px; cursor: pointer; font-size: .95rem; }
+._auth-error-msg { margin: 0 0 14px; font-size: .9rem; color: #aaa; line-height: 1.5; }
+._auth-error-hint { margin: 0; font-size: .85rem; color: #aaa; line-height: 1.5; }
 .card-mt4 { margin-top: 4px; }
 .card-mb12 { margin-bottom: 12px; }
 .sec-hdr-mt4 { margin-top: 4px; }
